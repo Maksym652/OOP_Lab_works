@@ -1,10 +1,8 @@
 package Lab3;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class Program {
-
     public static void main(String[] args) {
         Parking p = new Parking(1f, 20f, 600f);
         p.addCar("Іваненко Іван Іванович", "BB4589AD");
@@ -20,6 +18,7 @@ public class Program {
         System.out.println(p.formList()+'\n');
         System.out.println(p.monthReport("Федорчук Федір Федорович"));
         System.out.println(p.formReport(p.getCurrentCarList()));
+        System.out.println('\n'+p.formReport(p.getAllCustomersList()));
         p.finishWork();
     }
 }
