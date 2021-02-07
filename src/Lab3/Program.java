@@ -19,6 +19,10 @@ public class Program {
         System.out.println(p.monthReport("Федорчук Федір Федорович"));
         System.out.println(p.formReport(p.getCurrentCarList()));
         System.out.println('\n'+p.formReport(p.getAllCustomersList()));
+        p.addCar("Федорчук Василь Федорович", "BA9731AB", new Date(121,1,5,18,10));
+        p.removeCar("BA9731AB");
+        System.out.println('\n'+p.reportForOwner("Федорчук Федір Федорович"));
+        System.out.println('\n'+p.reportForCar("BA9731AB"));
         p.finishWork();
     }
 }

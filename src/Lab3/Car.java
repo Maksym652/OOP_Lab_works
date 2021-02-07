@@ -51,7 +51,7 @@ public class Car implements Serializable{
 
     @Override
     public String toString() {
-        DateFormat df = new SimpleDateFormat("[dd.MM.yy hh:mm]");
+        DateFormat df = new SimpleDateFormat("[dd.MM.yy HH:mm]");
         if(endTime==null)
         {
             return "Власник: '" + ownerName + '\'' +

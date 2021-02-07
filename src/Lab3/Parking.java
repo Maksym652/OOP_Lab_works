@@ -272,6 +272,16 @@ public class Parking {
         return formReport(getMonthList(ownerName));
     }
 
+    public String reportForOwner(String name)
+    {
+        return formReport(getListForOwner(name));
+    }
+
+    public String reportForCar(String num)
+    {
+        return formReport(getListForCar(num));
+    }
+
     @Override
     protected void finalize() throws Throwable {
         finishWork();
