@@ -33,6 +33,7 @@ public class Parking {
         pricePerMonth=monthPrice;
         currentCarList = new ArrayList<>();
         allCustomersList = new ArrayList<>();
+
         try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("CarsOnParkingNow.dat")))
         {
 
@@ -245,6 +246,11 @@ public class Parking {
     {
         return formReport(allCustomersList);
     }
+    public String formReport(Comparator<Car> comparator)
+    {
+        allCustomersList.sort(comparator);
+        return formReport(allCustomersList);
+    }
 
     public String formList(ArrayList<Car> list)
     {
@@ -265,6 +271,11 @@ public class Parking {
     {
         list.sort(comparator);
         return formList(list);
+    }
+    public String formList(Comparator<Car> comparator)
+    {
+        allCustomersList.sort(comparator);
+        return formList(allCustomersList);
     }
 
     public String monthReport(String ownerName)

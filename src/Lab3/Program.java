@@ -12,10 +12,11 @@ public class Program {
         p.addCar("Федорчук Федір Федорович", "BE3456AC", new Date(121, 0, 25, 15, 30));
         p.addCar("Федорчук Федір Федорович", "BA1256AB", new Date(121, 1, 2, 10, 45));
         p.addCar("Федорчук Василь Федорович", "BA9731AB");
+        p.addCar("Артеменко Артем Артемович", "BA0987BA", new Date(121, 1, 1, 14, 40));
         p.removeCar("BA9731AB");
         p.removeCar("BE3456AC", new Date(121, 0, 28, 15, 30));
         p.removeCar("BA1256AB", new Date(121, 1, 2, 15, 30));
-        System.out.println(p.formList()+'\n');
+        System.out.println(p.formList((car1, car2) -> car1.ownerName.compareTo(car2.ownerName))+'\n');
         System.out.println(p.monthReport("Федорчук Федір Федорович"));
         System.out.println(p.formReport(p.getCurrentCarList()));
         System.out.println('\n'+p.formReport(p.getAllCustomersList()));
