@@ -33,7 +33,7 @@ public class Parking {
         pricePerMonth=monthPrice;
         currentCarList = new ArrayList<>();
         allCustomersList = new ArrayList<>();
-
+        //дані про автомобілі на стоянці записуються з файлів
         try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("CarsOnParkingNow.dat")))
         {
 
@@ -53,7 +53,7 @@ public class Parking {
     }
 
     void finishWork()
-    {
+    {//метод, який перезаписує дані в файли
         try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("CarsOnParkingNow.dat")))
         {
             oos.writeObject(currentCarList);
@@ -108,7 +108,11 @@ public class Parking {
             System.out.println("Ця машина вже припаркована на стоянці.");
         }
     }
-    public void addCar(Car car)
+    public void addCar(String driver, String number, Date begin, Date end)
+    {
+        Car car = new Car(driver, number, begin, end);
+    }
+    private void addCar(Car car)
     {
         currentCarList.add(car);
         allCustomersList.add(car);
@@ -127,6 +131,7 @@ public class Parking {
 
     public void deleteCustomer(String name)
     {
+        currentCarList.removeIf(car -> car.ownerName.equals(name));
         allCustomersList.removeIf(car -> car.ownerName.equals(name));
     }
 
@@ -280,16 +285,16 @@ public class Parking {
 
     public String monthReport(String ownerName)
     {
-        return formReport(getMonthList(ownerName));
+        return formReport(getMonthList(ownerName), (car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
     }
 
     public String reportForOwner(String name)
     {
-        return formReport(getListForOwner(name));
+        return formReport(getListForOwner(name),(car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
     }
 
     public String reportForCar(String num)
     {
-        return formReport(getListForCar(num));
+        return formReport(getListForCar(num), (car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
     }
 }
