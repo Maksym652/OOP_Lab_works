@@ -292,9 +292,4 @@ public class Parking {
     {
         return formReport(getListForCar(num));
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        finishWork();
-    }
 }
