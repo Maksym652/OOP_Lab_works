@@ -23,14 +23,16 @@ public class Parking {
     private float pricePerDay;
     private float pricePerMonth;
     private float pricePerHour;
+    private int countOfPlaces;
     private ArrayList<Car> currentCarList;
     private ArrayList<Car> allCustomersList;
 
-    Parking(float hourPrice, float dayPrice, float monthPrice)
+    Parking(float hourPrice, float dayPrice, float monthPrice, int countOfPlaces)
     {
         pricePerHour=hourPrice;
         pricePerDay=dayPrice;
         pricePerMonth=monthPrice;
+        this.countOfPlaces=countOfPlaces;
         currentCarList = new ArrayList<>();
         allCustomersList = new ArrayList<>();
         //дані про автомобілі на стоянці записуються з файлів
@@ -79,60 +81,29 @@ public class Parking {
     public void setPricePerMonth(float pricePerMonth) {
         this.pricePerMonth = pricePerMonth;
     }
-
-    public ArrayList<Car> getAllCustomersList() {
-        return allCustomersList;
-    }
-    public ArrayList<Car> getCurrentCarList()
+    public int places()
     {
-        return currentCarList;
+        return countOfPlaces;
     }
 
-    public void addCar(String driver, String number)
+    private boolean isOnParking(String number)
     {
-        Car car = new Car(driver, number);
-        if(!currentCarList.contains(car)) {
-            addCar(car);
+        for (Car car:
+             currentCarList) {
+            if(car.number.equals(number))
+                return true;
         }
-        else {
-            System.out.println("Ця машина вже припаркована на стоянці.");
-        }
-    }
-    public void addCar(String driver, String number, Date begin)
-    {
-        Car car = new Car(driver, number, begin);
-        if(!currentCarList.contains(car)) {
-            addCar(car);
-        }
-        else {
-            System.out.println("Ця машина вже припаркована на стоянці.");
-        }
-    }
-    public void addCar(String driver, String number, Date begin, Date end)
-    {
-        Car car = new Car(driver, number, begin, end);
-    }
-    private void addCar(Car car)
-    {
-        currentCarList.add(car);
-        allCustomersList.add(car);
+        return false;
     }
 
-    public void removeCar(String num)
+    private Car findCar(String number)
     {
-        currentCarList.removeIf(car -> car.number.equals(num));
-        allCustomersList.forEach(car -> {if(car.number.equals(num))car.setEndTime();});
-    }
-    public void removeCar(String num, Date endTime)
-    {
-        currentCarList.removeIf(car -> car.number.equals(num));
-        allCustomersList.forEach(car -> {if(car.number.equals(num))car.setEndTime(endTime);});
-    }
-
-    public void deleteCustomer(String name)
-    {
-        currentCarList.removeIf(car -> car.ownerName.equals(name));
-        allCustomersList.removeIf(car -> car.ownerName.equals(name));
+        for (Car car:
+             allCustomersList) {
+            if(car.number.equals(number))
+                return car;
+        }
+        return null;
     }
 
     private ArrayList<Car> filter(Predicate<Car> filter)
@@ -144,122 +115,155 @@ public class Parking {
         }
         return result;
     }
-    private ArrayList<Car> filter(ArrayList<Car> carList, Predicate<Car> filter)
+    public void parkCar(String ownerName, String number)
     {
-        ArrayList<Car> result = new ArrayList<>();
-        for (Car car:
-                carList) {
-            if(filter.test(car)) result.add(car);
+        if(currentCarList.size()>countOfPlaces)
+        {
+            System.out.println("Вільних місць немає!");
+            return;
         }
-        return result;
+        if(!isOnParking(number)) {
+            if(findCar(number)!=null)findCar(number).visits.add(new TimeInterval());
+            else {
+                Car car = new Car(ownerName, number);
+                allCustomersList.add(car);
+                currentCarList.add(car);
+            }
+        }
+        else {
+            System.out.println("Ця машина вже припаркована.");
+        }
     }
-
-    public ArrayList<Car> getListForPeriod(Date from, Date to)
+    public void parkCar(String ownerName, String number, Date begin)
     {
-        return filter(car -> car.endTime!=null&&car.beginTime.after(from)&&car.endTime.before(to));
+        if(currentCarList.size()>countOfPlaces)
+        {
+            System.out.println("Вільних місць немає!");
+            return;
+        }
+        if(!isOnParking(number)) {
+            if(findCar(number)!=null)findCar(number).visits.add(new TimeInterval(begin));
+            else {
+                Car car = new Car(ownerName, number, begin);
+                allCustomersList.add(car);
+                currentCarList.add(car);
+            }
+        }
+        else {
+            System.out.println("Ця машина вже припаркована.");
+        }
     }
-    public ArrayList<Car> getListForPeriod(ArrayList<Car> carList, Date from, Date to)
+    public void parkCar(String ownerName, String number, Date begin, Date end)
     {
-        return filter(carList, car -> car.beginTime.after(from)&&car.endTime.after(to));
+        if(currentCarList.size()>countOfPlaces)
+        {
+            System.out.println("Вільних місць немає!");
+            return;
+        }
+        if(!isOnParking(number)) {
+            if(findCar(number)!=null)findCar(number).visits.add(new TimeInterval(begin, end));
+            else {
+                Car car = new Car(ownerName, number, begin, end);
+                allCustomersList.add(car);
+                currentCarList.add(car);
+            }
+        }
+        else {
+            System.out.println("Ця машина вже припаркована.");
+        }
     }
-
-    public ArrayList<Car> getListForOwner(String name)
+    public void leaveParking(String number)
     {
-        return filter(car -> car.ownerName==name);
+        if(isOnParking(number)) {
+            if(findCar(number)!=null) {
+                currentCarList.remove(findCar(number));
+            }
+        }
+        else{
+            System.out.println("Ця машина відсутня на парковці");
+        }
     }
-    public ArrayList<Car> getListForOwner(ArrayList<Car> carList, String name)
+    public void leaveParking(String number, Date end)
     {
-        return filter(carList, car -> car.ownerName.equals(name));
+        if(isOnParking(number)) {
+            if(findCar(number)!=null) {
+                currentCarList.remove(findCar(number));
+            }
+        }
+        else{
+            System.out.println("Ця машина відсутня на парковці.");
+        }
     }
-
-    public ArrayList<Car> getListForCar(String num)
+    public String formReport(Comparator<Car> comparator, Predicate<Car> filter)
     {
-        return filter(car -> car.number==num);
-    }
-    public ArrayList<Car> getListForCar(ArrayList<Car> carList, String num)
-    {
-        return filter(carList, car -> car.number.equals(num));
-    }
-
-    public ArrayList<Car> getMonthList(String ownerName)
-    {
-        Date today = new Date();
-        Date monthBefore = new Date(today.getTime()- 2592000000L);
-        return getListForOwner(getListForPeriod(monthBefore, today), ownerName);
-    }
-
-    public String formReport(ArrayList<Car> list)
-    {
-        float total=0;
+        float total = 0;
         int duration;
         StringBuilder report = new StringBuilder();
-        for (var car:
-             list) {
-            report.append(car.toString()).append('\t');
-            if(car.endTime!=null)
-                duration = (int)((car.endTime.getTime()-car.beginTime.getTime())/3600000);
-            else
-                duration = (int)((new Date().getTime()-car.beginTime.getTime())/3600000);
-            if(duration>=24)
+        ArrayList<Car> list = filter(filter);
+        list.sort(comparator);
+        for(Car car: list)
+        {
+            report.append("Власник: ").append(car.ownerName).append(", Номер: ").append(car.number).append("\n");
+            for(TimeInterval visit : car.visits)
             {
-                duration/=24;
-                if(duration>=30)
+                report.append(visit.toString());
+                duration = (int) visit.getDuration();
+                if(duration>=24)
                 {
-                    duration/=30;
+                    duration/=24;
+                    if(duration>=30)
+                    {
+                        duration/=30;
+                        report.append(duration);
+                        switch (duration) {
+                            case 1 -> report.append(" місяць");
+                            case 2, 3, 4 -> report.append(" місяці");
+                            default -> report.append(" місяців");
+                        }
+                        report.append('\t').append(duration * pricePerMonth).append("₴");
+                        total+=duration*pricePerMonth;
+                    }
+                    else
+                    {
+                        report.append(duration);
+                        switch (duration) {
+                            case 1, 21 -> report.append(" день");
+                            case 2, 3, 4, 22, 23, 24 -> report.append(" дні");
+                            default -> report.append(" днів");
+                        }
+                        report.append('\t').append(duration * pricePerDay).append("₴");
+                        total+=duration*pricePerDay;
+                    }
+                }
+                else {
                     report.append(duration);
                     switch (duration) {
-                        case 1 -> report.append(" місяць");
-                        case 2, 3, 4 -> report.append(" місяці");
-                        default -> report.append(" місяців");
+                        case 1, 21 -> report.append(" година");
+                        case 2, 3, 4, 22, 23 -> report.append(" години");
+                        default -> report.append(" годин");
                     }
-                    report.append('\t').append(duration * pricePerMonth).append("₴");
-                    total+=duration*pricePerMonth;
+                    report.append('\t').append(duration * pricePerHour).append("₴");
+                    total+=duration*pricePerHour;
                 }
-                else
-                {
-                    report.append(duration);
-                    switch (duration) {
-                        case 1, 21 -> report.append(" день");
-                        case 2, 3, 4, 22, 23, 24 -> report.append(" дні");
-                        default -> report.append(" днів");
-                    }
-                    report.append('\t').append(duration * pricePerDay).append("₴");
-                    total+=duration*pricePerDay;
-                }
+                report.append('\n');
             }
-            else {
-                report.append(duration);
-                switch (duration) {
-                    case 1, 21 -> report.append(" година");
-                    case 2, 3, 4, 22, 23 -> report.append(" години");
-                    default -> report.append(" годин");
-                }
-                report.append('\t').append(duration * pricePerHour).append("₴");
-                total+=duration*pricePerHour;
-            }
-            report.append('\n');
         }
         report.append("_________________________________\nВСЬОГО:\t\t\t").append(total).append('₴').append('\n');
         return report.toString();
     }
-    public String formReport(ArrayList<Car> list, Comparator<Car> comparator)
-    {
-        list.sort(comparator);
-        return formReport(list);
-    }
     public String formReport()
     {
-        return formReport(allCustomersList);
+        return formReport((Car car1, Car car2) -> car1.ownerName.compareTo(car2.ownerName), car -> true);
     }
-    public String formReport(Comparator<Car> comparator)
+    public String formReport(Predicate<Car> filter)
     {
-        allCustomersList.sort(comparator);
-        return formReport(allCustomersList);
+        return formReport((Car car1, Car car2) -> car1.ownerName.compareTo(car2.ownerName), filter);
     }
-
-    public String formList(ArrayList<Car> list)
+    public String formList(Comparator<Car> comparator, Predicate<Car> filter)
     {
         StringBuilder result = new StringBuilder();
+        ArrayList<Car> list = filter(filter);
+        list.sort(comparator);
         for (var car:
              list) {
             result.append(car.ownerName).append(" ").append(car.number).append("\n");
@@ -270,31 +274,89 @@ public class Parking {
     }
     public String formList()
     {
-        return formList(allCustomersList);
+        return formList((Car car1, Car car2) -> car1.ownerName.compareTo(car2.ownerName), car -> true);
     }
-    public String formList(ArrayList<Car> list, Comparator<Car> comparator)
+    public String currentCarList()
     {
-        list.sort(comparator);
-        return formList(list);
+        StringBuilder result = new StringBuilder();
+        ArrayList<Car> list = currentCarList;
+        for (var car:
+                list) {
+            result.append(car.ownerName).append(" ").append(car.number).append("\n");
+        }
+        result.append("_________________________________\nКІЛЬКІСТЬ АВТОМОБІЛІВ:\t\t");
+        result.append(list.toArray().length).append('/').append(countOfPlaces);
+        return result.toString();
     }
-    public String formList(Comparator<Car> comparator)
-    {
-        allCustomersList.sort(comparator);
-        return formList(allCustomersList);
-    }
-
     public String monthReport(String ownerName)
     {
-        return formReport(getMonthList(ownerName), (car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
+        Date monthBefore = new Date(new Date().getTime()-2592000000L);
+        float total = 0;
+        int duration;
+        StringBuilder report = new StringBuilder();
+        ArrayList<Car> list = filter(car -> car.ownerName.equals(ownerName));
+        list.sort((Car car1, Car car2) -> car1.visits.size()-car2.visits.size());
+        for(Car car: list)
+        {
+            if(car.filter(monthBefore, new Date(new Date().getTime()+1000)).size()>0) {
+                report.append("Власник: ").append(car.ownerName).append(", Номер: ").append(car.number).append("\n");
+            }
+            for(TimeInterval visit : car.filter(monthBefore, new Date(new Date().getTime()+1000)))
+            {
+                report.append(visit.toString());
+                duration = (int) visit.getDuration();
+                if(duration>=24)
+                {
+                    duration/=24;
+                    if(duration>=30)
+                    {
+                        duration/=30;
+                        report.append(duration);
+                        switch (duration) {
+                            case 1 -> report.append(" місяць");
+                            case 2, 3, 4 -> report.append(" місяці");
+                            default -> report.append(" місяців");
+                        }
+                        report.append('\t').append(duration * pricePerMonth).append("₴");
+                        total+=duration*pricePerMonth;
+                    }
+                    else
+                    {
+                        report.append(duration);
+                        switch (duration) {
+                            case 1, 21 -> report.append(" день");
+                            case 2, 3, 4, 22, 23, 24 -> report.append(" дні");
+                            default -> report.append(" днів");
+                        }
+                        report.append('\t').append(duration * pricePerDay).append("₴");
+                        total+=duration*pricePerDay;
+                    }
+                }
+                else {
+                    report.append(duration);
+                    switch (duration) {
+                        case 1, 21 -> report.append(" година");
+                        case 2, 3, 4, 22, 23 -> report.append(" години");
+                        default -> report.append(" годин");
+                    }
+                    report.append('\t').append(duration * pricePerHour).append("₴");
+                    total+=duration*pricePerHour;
+                }
+                report.append('\n');
+            }
+        }
+        report.append("_________________________________\nВСЬОГО:\t\t\t").append(total).append('₴').append('\n');
+        return report.toString();
     }
 
     public String reportForOwner(String name)
     {
-        return formReport(getListForOwner(name),(car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
+        return formReport(car -> car.ownerName.equals(name));
     }
 
     public String reportForCar(String num)
     {
-        return formReport(getListForCar(num), (car1, car2) -> car1.beginTime.compareTo(car2.beginTime));
+
+        return formReport(car -> car.number.equals(num));
     }
 }

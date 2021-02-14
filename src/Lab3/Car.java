@@ -4,69 +4,62 @@ import javax.swing.text.DateFormatter;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 public class Car implements Serializable{
     String ownerName;
     String number;
-    Date beginTime;
-    Date endTime;
-
-    public void setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-    }
-    public void setBeginTime() {
-        this.beginTime = new Date();
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-    public void setEndTime() {
-        this.endTime = new Date();
-    }
+    ArrayList<TimeInterval> visits = new ArrayList<TimeInterval>();
 
 
     public Car(String ownerName, String number, Date beginTime, Date endTime) {
         this.ownerName = ownerName;
         this.number = number;
-        this.beginTime = beginTime;
-        this.endTime = endTime;
+        visits.add(new TimeInterval(beginTime, endTime));
     }
     public Car(String ownerName, String number, Date beginTime) {
         this.ownerName = ownerName;
         this.number = number;
-        this.beginTime = beginTime;
+        visits.add(new TimeInterval(beginTime));
     }
 
     public Car(String ownerName, String number)
     {
         this.ownerName = ownerName;
         this.number = number;
-        this.setBeginTime();
+        visits.add(new TimeInterval());
+    }
+
+    public ArrayList<TimeInterval> filter(Date from, Date to)
+    {
+        ArrayList<TimeInterval> filteredList = new ArrayList<TimeInterval>();
+        for (TimeInterval visit:
+             visits) {
+            if(visit.getBegin().after(from)&&visit.getEnd().before(to))
+            {
+                filteredList.add(visit);
+            }
+        }
+        return filteredList;
+    }
+
+    public String visitList()
+    {
+        StringBuilder result = new StringBuilder();
+        for (var visit:
+             visits) {
+            result.append(visit.toString()).append('\n');
+        }
+        return result.toString();
     }
 
     @Override
     public String toString() {
-        DateFormat df = new SimpleDateFormat("[dd.MM.yy HH:mm]");
-        if(endTime==null)
-        {
-            return "Власник: '" + ownerName + '\'' +
-                    ", Номерний знак: '" + number + '\'' +
-                    ", Початок стоянки: " + df.format(beginTime);
-        }
-        else
-        {
-            return "Власник: '" + ownerName + '\'' +
-                    ", Номерний знак: '" + number + '\'' +
-                    ", Час на стоянці: з: " + df.format(beginTime) +
-                    ", до: " + df.format(endTime);
-        }
+        return "Власник: "+ownerName
+                +", номер: "+number
+                +"\tВідвідування автостоянки:\n"
+                +visitList()+' '+'\n';
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
