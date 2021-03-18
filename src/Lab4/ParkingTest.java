@@ -98,10 +98,10 @@ class ParkingTest {
         assertTrue(p.findCar("BB2222BB").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), null)));
 
         //parkCar повертає true якщо для машини знайшлося місце
-        assertTrue(p.parkCar("Максименко Максим Максимович", "CC3333CC", new Date(121, 1,1,1,1), new Date(121, 2,2,2,2)));
+        assertTrue(p.parkCar("Максименко Максим Максимович", "CC3333CC", new Date(121, 1,1,1,1), new Date(221, 2,2,2,2)));
         assertTrue(p.getCurrentCarList().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
         assertTrue(p.getAllCustomersList().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
-        assertTrue(p.findCar("CC3333CC").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), new Date(121, 2,2,2,2))));
+        assertTrue(p.findCar("CC3333CC").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), new Date(221, 2,2,2,2))));
 
         assertFalse(p.parkCar("Павленко Павло Павлович", "AB9876BA"));//parkCar повертає false якщо на парковці немає місця
     }
