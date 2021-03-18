@@ -4,20 +4,21 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class TimeInterval implements Serializable {
     private Date begin;
     private Date end;
-    Date getBegin()
+
+    public Date getBegin()
     {
         return begin;
     }
-    Date getEnd()
-    {
+    public Date getEnd()
+    {//якщо end==null, то цей інтервал часу ще триває - вертаємо поточну дату
         if(end==null) return new Date();
         return end;
     }
-
     public void setEnd(Date end) {
         this.end = end;
     }
@@ -25,25 +26,23 @@ public class TimeInterval implements Serializable {
         this.end = new Date();
     }
 
-    TimeInterval(Date begin, Date end)
+
+    public TimeInterval(Date begin, Date end)
     {
         this.begin=begin;
         this.end=end;
     }
-    TimeInterval(Date begin)
+
+    public boolean includes(TimeInterval interval)
     {
-        this.begin=begin;
-    }
-    TimeInterval()
-    {
-        this.begin=new Date();
+        return (this.getBegin().before(interval.getBegin()) || this.getBegin().equals(interval.getBegin())) && (this.getEnd().after(interval.getEnd()) || this.getEnd().equals(interval.getEnd()));
     }
 
-    long getDuration()
+    public long getDurationInHours()
     {
         if(this.end==null)
             return (new Date().getTime() - this.begin.getTime())/3600000;
-        return this.end.getTime() - this.begin.getTime();
+        return (this.end.getTime() - this.begin.getTime())/3600000;
     }
 
     @Override
@@ -56,5 +55,18 @@ public class TimeInterval implements Serializable {
         }
         return  "\t З " + df.format(begin) +
                 " ДО " + df.format(end);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeInterval that = (TimeInterval) o;
+        return begin.equals(that.begin) && Objects.equals(end, that.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(begin, end);
     }
 }

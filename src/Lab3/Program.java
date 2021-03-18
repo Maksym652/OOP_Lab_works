@@ -21,7 +21,7 @@ public class Program {
         p.leaveParking("BA9731AB");
         p.leaveParking("BE3456AC", new Date(121, 0, 28, 15, 30));
         p.leaveParking("BA1256AB", new Date(121, 1, 2, 15, 30));
-        System.out.println(p.formList());
+        //System.out.println(p.formList());
         System.out.println(p.monthReport("Федорчук Федір Федорович"));
         System.out.println(p.formReport());
         System.out.println('\n'+p.formReport((Car car1, Car car2) -> car1.ownerName.compareTo(car2.ownerName), car -> car.visits.size()>1));
@@ -29,7 +29,7 @@ public class Program {
         p.leaveParking("BA9731AB");
         System.out.println('\n'+p.reportForOwner("Федорчук Федір Федорович"));
         System.out.println('\n'+p.reportForCar("BA9731AB"));
-        System.out.println('\n'+p.currentCarList());
+        System.out.println('\n'+p.carsNowAtParking());
         p.finishWork();
     }
 }
