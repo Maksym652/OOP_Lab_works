@@ -175,6 +175,29 @@ public class Parking {
         }
     }
 
+    public float calculatePrice(Date begin, Date end)
+    {
+        TimeInterval ti = new TimeInterval(begin, end);
+        long duration = ti.getDurationInHours();
+        if(duration<24)
+        {
+            return duration*pricePerHour;
+        }
+        else
+        {
+            duration/=24;
+            if(duration<30)
+            {
+                return duration*pricePerDay;
+            }
+            else
+            {
+                duration/=30;
+                return duration*pricePerMonth;
+            }
+        }
+    }
+
     public String formReport(Comparator<Car> comparator, Predicate<Car> filter)
     {
         float total = 0;

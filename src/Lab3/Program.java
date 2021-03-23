@@ -22,6 +22,7 @@ public class Program {
         p.leaveParking("BE3456AC", new Date(121, 0, 28, 15, 30));
         p.leaveParking("BA1256AB", new Date(121, 1, 2, 15, 30));
         //System.out.println(p.formList());
+        System.out.printf(Float.toString(p.calculatePrice(new Date(121, 0, 1, 0,0), new Date()))+'\n');
         System.out.println(p.monthReport("Федорчук Федір Федорович"));
         System.out.println(p.formReport());
         System.out.println('\n'+p.formReport((Car car1, Car car2) -> car1.ownerName.compareTo(car2.ownerName), car -> car.visits.size()>1));
