@@ -4,6 +4,9 @@ import Lab3.Car;
 import Lab3.Parking;
 import Lab3.TimeInterval;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -177,4 +181,24 @@ class ParkingTest {
         String str = "Власник: Сергієнко Сергій Сергійович, Номер: AB1357BC\n"+p.findCar("AB1357BC").getVisits().get(0).toString()+"\t0 годин\t0.0₴\n_________________________________\nВСЬОГО:\t\t\t0.0₴\n";
         assertEquals(str, p.reportForCar("AB1357BC"));
     }
+
+    @ParameterizedTest
+    @MethodSource("getDataForCalculatePricesTest")
+    void testCalculatePrice(Date begin, Date end, float expectedPrice) {
+        assertEquals(expectedPrice, p.calculatePrice(begin, end));
+    }
+
+    static Stream<Arguments> getDataForCalculatePricesTest()
+    {
+        return Stream.of(
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.JANUARY, 1, 12, 45), 0f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.JANUARY, 1, 13, 30), 1f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.JANUARY, 1, 18, 30), 6f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.JANUARY, 2, 12, 30), 20f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.JANUARY, 3, 15, 25), 40f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.FEBRUARY, 1, 12, 30), 600f),
+                Arguments.of(new Date(121, Calendar.JANUARY, 1, 12, 30), new Date(121, Calendar.APRIL, 1, 13, 30), 1800f)
+                );
+    }
+
 }
