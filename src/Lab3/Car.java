@@ -11,19 +11,30 @@ public class Car implements Serializable{
     public String getOwnerName() {
         return ownerName;
     }
+    public void setOwnerName(String name){ownerName=name;}
     public String getNumber() {
         return number;
     }
+    public void setNumber(String number){this.number = number;}
 
     public ArrayList<TimeInterval> getVisits(){
         return visits;
+    }
+
+    public boolean addVisit(TimeInterval visit){
+        return visits.add(visit);
+    }
+
+    public boolean isOnParking() {
+        if(visits.isEmpty())
+            return false;
+        return visits.get(visits.size() - 1).includes(new TimeInterval(new Date(), new Date()));
     }
 
     public Car(String ownerName, String number)
     {
         this.ownerName = ownerName;
         this.number = number;
-        visits.add(new TimeInterval(new Date(), null));
     }
     public Car(String ownerName, String number, Date beginTime, Date endTime) {
         this.ownerName = ownerName;

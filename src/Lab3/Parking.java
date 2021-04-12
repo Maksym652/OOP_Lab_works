@@ -5,10 +5,8 @@
 // виїздів-заїздів за період. Потрібна можливість формування звіту по окремому авто або власнику
 package Lab3;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import Lab5.DAO_Car;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,8 +22,7 @@ public class Parking {
     private float pricePerMonth;
     private float pricePerHour;
     private int countOfPlaces;
-    private ArrayList<Car> currentCarList;
-    private ArrayList<Car> allCustomersList;
+    DAO_Car dao = new DAO_Car();
 
     public Parking(float hourPrice, float dayPrice, float monthPrice, int countOfPlaces)
     {
@@ -33,40 +30,6 @@ public class Parking {
         pricePerDay=dayPrice;
         pricePerMonth=monthPrice;
         this.countOfPlaces=countOfPlaces;
-        //дані про автомобілі на стоянці записуються з файлів
-        //якщо файлів нема/неможливо зчитати, то створюються порожні колекції
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("CarsOnParkingNow.dat")))
-        {
-            currentCarList=((ArrayList<Car>)ois.readObject());
-        }
-        catch(Exception ex){
-            currentCarList = new ArrayList<>();
-        }
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("AllCustomersOfParking.dat")))
-        {
-            allCustomersList= (ArrayList<Car>)ois.readObject();
-        }
-        catch(Exception ex){
-            allCustomersList = new ArrayList<>();
-        }
-    }
-
-    public void finishWork()
-    {//метод, який перезаписує дані в файли
-        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("CarsOnParkingNow.dat")))
-        {
-            oos.writeObject(currentCarList);
-        }
-        catch(Exception ex){
-            System.out.println(ex.getMessage());
-        }
-        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("AllCustomersOfParking.dat")))
-        {
-            oos.writeObject(allCustomersList);
-        }
-        catch(Exception ex) {
-            System.out.println(ex.getMessage());
-        }
     }
 
     public void setPricePerHour(float pricePerHour) {
@@ -79,12 +42,16 @@ public class Parking {
         this.pricePerMonth = pricePerMonth;
     }
 
-    public ArrayList<Car> getCurrentCarList() {
-        return currentCarList;
+    public ArrayList<Car> getCarsOnParkingNow() {
+        ArrayList<Car> result = new ArrayList<Car>();
+        for (Car car:dao.findAll()) {
+            if(car.isOnParking())
+                result.add(car);
+        }
+        return result;
     }
-
-    public ArrayList<Car> getAllCustomersList() {
-        return allCustomersList;
+    public ArrayList<Car> getAllCars() {
+        return (ArrayList<Car>) dao.findAll();
     }
 
     public float[] getPrices()
@@ -96,31 +63,16 @@ public class Parking {
         return countOfPlaces;
     }
 
-    private boolean isOnParking(String number)
-    {
-        for (Car car:
-             currentCarList) {
-            if(car.number.equals(number))
-                return true;
-        }
-        return false;
-    }
 
     public Car findCar(String number)
     {
-        for (Car car:
-             allCustomersList) {
-            if(car.number.equals(number))
-                return car;
-        }
-        return null;
+        return dao.findById(number).isEmpty()?null:dao.findById(number).get(0);
     }
 
     private ArrayList<Car> filtration(Predicate<Car> filter)
     {
         ArrayList<Car> result = new ArrayList<>();
-        for (Car car:
-                allCustomersList) {
+        for (Car car : getAllCars()) {
             if(filter.test(car)) result.add(car);
         }
         return result;
@@ -137,42 +89,33 @@ public class Parking {
     }
     public boolean parkCar(String ownerName, String number, Date begin, Date end)
     {
-        if(currentCarList.size()==countOfPlaces)
+        if(getCarsOnParkingNow().size()==countOfPlaces)
         {
             return false;
         }
-        if(!isOnParking(number)) {
-            if(findCar(number)!=null)findCar(number).visits.add(new TimeInterval(begin, end));
-            else {
-                Car car = new Car(ownerName, number, begin, end);
-                allCustomersList.add(car);
-                currentCarList.add(car);
-                if(car.getVisits().get(0).getEnd().before(new Date()))
-                {
-                    leaveParking(number);
-                }
-            }
-            return true;
+        Car car = findCar(number);
+        if(car!=null)
+        {
+            if(!car.isOnParking())
+                return dao.addVisit(number,begin,end);
+            else return false;
         }
-        else {
-            return false;
+        else
+        {
+            car = new Car(ownerName, number, begin, end);
+            dao.create(car);
+            return true;
         }
     }
 
-    public void leaveParking(String number)
+    public boolean leaveParking(String number)
     {
-        if(isOnParking(number)) {
-            if(findCar(number).visits.get(findCar(number).visits.size()-1).getEnd().equals(new Date()))
-                findCar(number).visits.get(findCar(number).visits.size()-1).setEnd(new Date());
-            currentCarList.remove(findCar(number));
-        }
+        return leaveParking(number, new Date());
     }
-    public void leaveParking(String number, Date end)
+    public boolean leaveParking(String number, Date end)
     {
-        if(isOnParking(number)) {
-            findCar(number).visits.get(findCar(number).visits.size()-1).setEnd(end);
-            currentCarList.remove(findCar(number));
-        }
+        if(findCar(number)==null) return false;
+        return dao.setEndVisit(number,end);
     }
 
     public float calculatePrice(Date begin, Date end)
@@ -284,7 +227,7 @@ public class Parking {
     public String carsNowAtParking()
     {
         StringBuilder result = new StringBuilder();
-        ArrayList<Car> list = currentCarList;
+        ArrayList<Car> list = getCarsOnParkingNow();
         for (var car:
                 list) {
             result.append(car.ownerName).append(" ").append(car.number).append("\n");

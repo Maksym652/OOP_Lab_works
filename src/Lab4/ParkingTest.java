@@ -9,9 +9,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,27 +35,6 @@ class ParkingTest {
         p.parkCar("Петренко Петро Петрович", "BA4321AA", new Date(121, Calendar.FEBRUARY, 2, 11, 47));
         p.parkCar("Сидоренко Сидір Сидорович", "AB6789BD");
         p.leaveParking("BA4321AA", new Date(121, Calendar.FEBRUARY, 28, 11, 47));
-    }
-
-    @Test
-    void finishWork() {
-        p.finishWork();
-        assertTrue(new File("CarsOnParkingNow.dat").exists()&&new File("AllCustomersOfParking.dat").exists());
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("CarsOnParkingNow.dat"))) {
-            ArrayList<Car> carList = (ArrayList<Car>) ois.readObject();
-            assertTrue(carList.contains(new Car("Сидоренко Сидір Сидорович", "AB6789BD")));
-        }
-        catch(Exception ex){
-            System.out.println(ex.getMessage());
-        }
-        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("AllCustomersOfParking.dat")))
-        {
-            ArrayList<Car> customersList= (ArrayList<Car>)ois.readObject();
-            assertTrue(customersList.contains(new Car("Петренко Петро Петрович", "BA4321AA")));
-        }
-        catch(Exception ex){
-            System.out.println(ex.getMessage());
-        }
     }
 
     @Test
@@ -93,18 +69,18 @@ class ParkingTest {
     void parkCar() {
         p.parkCar("Василенко Василь Васильович", "AA1111AA");
         assertTrue(p.findCar("AA1111AA").getVisits().contains(new TimeInterval(new Date(), null)));
-        assertTrue(p.getCurrentCarList().contains(new Car("Василенко Василь Васильович", "AA1111AA")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Василенко Василь Васильович", "AA1111AA")));
+        assertTrue(p.getCarsOnParkingNow().contains(new Car("Василенко Василь Васильович", "AA1111AA")));
+        assertTrue(p.getAllCars().contains(new Car("Василенко Василь Васильович", "AA1111AA")));
 
         p.parkCar("Степаненко Степан Степанович", "BB2222BB", new Date(121, 1, 1,1,1));
-        assertTrue(p.getCurrentCarList().contains(new Car("Степаненко Степан Степанович", "BB2222BB")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Степаненко Степан Степанович", "BB2222BB")));
+        assertTrue(p.getCarsOnParkingNow().contains(new Car("Степаненко Степан Степанович", "BB2222BB")));
+        assertTrue(p.getAllCars().contains(new Car("Степаненко Степан Степанович", "BB2222BB")));
         assertTrue(p.findCar("BB2222BB").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), null)));
 
         //parkCar повертає true якщо для машини знайшлося місце
         assertTrue(p.parkCar("Максименко Максим Максимович", "CC3333CC", new Date(121, 1,1,1,1), new Date(221, 2,2,2,2)));
-        assertTrue(p.getCurrentCarList().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
+        assertTrue(p.getCarsOnParkingNow().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
+        assertTrue(p.getAllCars().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
         assertTrue(p.findCar("CC3333CC").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), new Date(221, 2,2,2,2))));
 
         assertFalse(p.parkCar("Павленко Павло Павлович", "AB9876BA"));//parkCar повертає false якщо на парковці немає місця
@@ -114,18 +90,18 @@ class ParkingTest {
     void leaveParking() {
         p.leaveParking("AB6789BD");
         assertEquals(new Date(), p.findCar("AB6789BD").getVisits().get(0).getEnd());
-        assertFalse(p.getCurrentCarList().contains(new Car ("Сидоренко Сидір Сидорович", "AB6789BD")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Сидоренко Сидір Сидорович", "AB6789BD")));
+        assertFalse(p.getCarsOnParkingNow().contains(new Car ("Сидоренко Сидір Сидорович", "AB6789BD")));
+        assertTrue(p.getAllCars().contains(new Car("Сидоренко Сидір Сидорович", "AB6789BD")));
 
         p.leaveParking("BA4321AA", new Date(121, Calendar.APRIL, 3, 3,3));
         assertEquals(new Date(121, Calendar.FEBRUARY, 28, 11, 47), p.findCar("BA4321AA").getVisits().get(0).getEnd());
-        assertFalse(p.getCurrentCarList().contains(new Car ("Петренко Петро Петрович", "BA4321AA")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Петренко Петро Петрович", "BA4321AA")));
+        assertFalse(p.getCarsOnParkingNow().contains(new Car ("Петренко Петро Петрович", "BA4321AA")));
+        assertTrue(p.getAllCars().contains(new Car("Петренко Петро Петрович", "BA4321AA")));
 
         p.leaveParking("BE1234AA");
         assertEquals(new Date(121, Calendar.MARCH, 1, 12, 0), p.findCar("BE1234AA").getVisits().get(0).getEnd());
-        assertFalse(p.getCurrentCarList().contains(new Car ("Петренко Петро Петрович", "BA4321AA")));
-        assertTrue(p.getAllCustomersList().contains(new Car("Петренко Петро Петрович", "BA4321AA")));
+        assertFalse(p.getCarsOnParkingNow().contains(new Car ("Петренко Петро Петрович", "BA4321AA")));
+        assertTrue(p.getAllCars().contains(new Car("Петренко Петро Петрович", "BA4321AA")));
     }
 
     @Test
