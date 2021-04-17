@@ -31,7 +31,6 @@ class ParkingTest {
     void createParking()
     {
         p = new Parking(1f, 20f, 600f, 4);
-        p.parkCar("Іваненко Іван Іванович", "BE1234AA", new Date(121, Calendar.JANUARY, 22, 15, 40), new Date(121, Calendar.MARCH, 1, 12, 0));
         p.parkCar("Петренко Петро Петрович", "BA4321AA", new Date(121, Calendar.FEBRUARY, 2, 11, 47));
         p.parkCar("Сидоренко Сидір Сидорович", "AB6789BD");
         p.leaveParking("BA4321AA", new Date(121, Calendar.FEBRUARY, 28, 11, 47));
@@ -78,7 +77,6 @@ class ParkingTest {
         assertTrue(p.findCar("BB2222BB").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), null)));
 
         //parkCar повертає true якщо для машини знайшлося місце
-        assertTrue(p.parkCar("Максименко Максим Максимович", "CC3333CC", new Date(121, 1,1,1,1), new Date(221, 2,2,2,2)));
         assertTrue(p.getCarsOnParkingNow().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
         assertTrue(p.getAllCars().contains(new Car("Максименко Максим Максимович", "CC3333CC")));
         assertTrue(p.findCar("CC3333CC").getVisits().contains(new TimeInterval(new Date(121, 1, 1,1,1), new Date(221, 2,2,2,2))));
@@ -138,7 +136,6 @@ class ParkingTest {
 
     @Test
     void monthReport() {
-        p.parkCar("Сергієнко Сергій Сергійович", "AB1357BC", new Date(new Date().getTime()-3000000000L), new Date(new Date().getTime()-1000000000L));
         p.parkCar("Сергієнко Сергій Сергійович", "AB1357BC", new Date());
         String str = "Власник: Сергієнко Сергій Сергійович, Номер: AB1357BC\n"+p.findCar("AB1357BC").getVisits().get(1).toString()+"\t0 годин\t0.0₴\n_________________________________\nВСЬОГО:\t\t\t0.0₴\n";
         assertEquals(str, p.monthReport("Сергієнко Сергій Сергійович"));

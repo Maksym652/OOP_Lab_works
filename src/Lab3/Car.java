@@ -1,9 +1,8 @@
 package Lab3;
 
-import java.io.Serializable;
 import java.util.*;
 
-public class Car implements Serializable{
+public class Car{
     String ownerName;
     String number;
     ArrayList<TimeInterval> visits = new ArrayList<TimeInterval>();
@@ -15,7 +14,6 @@ public class Car implements Serializable{
     public String getNumber() {
         return number;
     }
-    public void setNumber(String number){this.number = number;}
 
     public ArrayList<TimeInterval> getVisits(){
         return visits;
@@ -36,10 +34,10 @@ public class Car implements Serializable{
         this.ownerName = ownerName;
         this.number = number;
     }
-    public Car(String ownerName, String number, Date beginTime, Date endTime) {
+    public Car(String ownerName, String number, Date beginTime) {
         this.ownerName = ownerName;
         this.number = number;
-        visits.add(new TimeInterval(beginTime, endTime));
+        visits.add(new TimeInterval(beginTime, null));
     }
 
     public ArrayList<TimeInterval> visitsForPeriod(Date from, Date to)

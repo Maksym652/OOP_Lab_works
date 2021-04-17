@@ -5,6 +5,7 @@
 // виїздів-заїздів за період. Потрібна можливість формування звіту по окремому авто або власнику
 package Lab3;
 
+import Lab5.Car_Controller;
 import Lab5.DAO_Car;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Parking {
     private float pricePerHour;
     private int countOfPlaces;
     DAO_Car dao = new DAO_Car();
-
+    Car_Controller car_controller = new Car_Controller();
     public Parking(float hourPrice, float dayPrice, float monthPrice, int countOfPlaces)
     {
         pricePerHour=hourPrice;
@@ -62,7 +63,7 @@ public class Parking {
     {
         return countOfPlaces;
     }
-
+    public void setCountOfPlaces(int count){this.countOfPlaces = count;}
 
     public Car findCar(String number)
     {
@@ -80,14 +81,9 @@ public class Parking {
 
     public boolean parkCar(String ownerName, String number)
     {
-        return parkCar(ownerName, number, new Date(), null);
+        return parkCar(ownerName, number, new Date());
     }
-
     public boolean parkCar(String ownerName, String number, Date begin)
-    {
-        return parkCar(ownerName, number, begin, null);
-    }
-    public boolean parkCar(String ownerName, String number, Date begin, Date end)
     {
         if(getCarsOnParkingNow().size()==countOfPlaces)
         {
@@ -97,12 +93,12 @@ public class Parking {
         if(car!=null)
         {
             if(!car.isOnParking())
-                return dao.addVisit(number,begin,end);
+                return car_controller.addVisit(number,begin);
             else return false;
         }
         else
         {
-            car = new Car(ownerName, number, begin, end);
+            car = new Car(ownerName, number, begin);
             dao.create(car);
             return true;
         }
@@ -115,7 +111,7 @@ public class Parking {
     public boolean leaveParking(String number, Date end)
     {
         if(findCar(number)==null) return false;
-        return dao.setEndVisit(number,end);
+        return car_controller.setEndVisit(number,end);
     }
 
     public float calculatePrice(Date begin, Date end)
