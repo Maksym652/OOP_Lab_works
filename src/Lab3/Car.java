@@ -5,7 +5,7 @@ import java.util.*;
 public class Car{
     String ownerName;
     String number;
-    ArrayList<TimeInterval> visits = new ArrayList<TimeInterval>();
+    public ArrayList<Visit> visits = new ArrayList<Visit>();
 
     public String getOwnerName() {
         return ownerName;
@@ -15,18 +15,18 @@ public class Car{
         return number;
     }
 
-    public ArrayList<TimeInterval> getVisits(){
+    public ArrayList<Visit> getVisits(){
         return visits;
     }
 
-    public boolean addVisit(TimeInterval visit){
+    public boolean addVisit(Visit visit){
         return visits.add(visit);
     }
 
     public boolean isOnParking() {
         if(visits.isEmpty())
             return false;
-        return visits.get(visits.size() - 1).includes(new TimeInterval(new Date(), new Date()));
+        return visits.get(visits.size() - 1).includes(new Visit(new Date(), new Date()));
     }
 
     public Car(String ownerName, String number)
@@ -37,15 +37,15 @@ public class Car{
     public Car(String ownerName, String number, Date beginTime) {
         this.ownerName = ownerName;
         this.number = number;
-        visits.add(new TimeInterval(beginTime, null));
+        visits.add(new Visit(beginTime, null));
     }
 
-    public ArrayList<TimeInterval> visitsForPeriod(Date from, Date to)
+    public ArrayList<Visit> visitsForPeriod(Date from, Date to)
     {
-        ArrayList<TimeInterval> filteredList = new ArrayList<TimeInterval>();
-        for (TimeInterval visit:
-             visits) {
-            if(new TimeInterval(from, to).includes(visit))
+        ArrayList<Visit> filteredList = new ArrayList<Visit>();
+        for (Visit visit:
+                visits) {
+            if(new Visit(from, to).includes(visit))
             {
                 filteredList.add(visit);
             }

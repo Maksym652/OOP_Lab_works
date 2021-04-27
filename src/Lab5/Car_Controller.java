@@ -4,23 +4,20 @@ import java.sql.*;
 import java.util.Date;
 
 public class Car_Controller {
-    Connection connection;
-    DAO_Car dao_car = new DAO_Car();
-    Connection getConnection() throws SQLException, ClassNotFoundException {
-        Connection result= DriverManager.getConnection("jdbc:sqlite:D://МАКСИМ//Навчання//2020-2021//ІІ семестр//ООП//ParkingDataBase.db");
-        return result;
-    }
+    public DAO_Car dao = new DAO_Car();
     public boolean addVisit(String number, Date begin){
         Boolean result = false;
         try {
-            if(connection==null){
-                connection=getConnection();
+            if(dao.connection==null){
+                dao.connection=dao.getConnection();
             }
-            if(!dao_car.findById(number).isEmpty()) {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Visits (`carNumber`, `beginTime`) VALUES (?, ?)");
+            if(!dao.findById(number).isEmpty()) {
+                PreparedStatement preparedStatement = dao.connection.prepareStatement("INSERT INTO Visits (`carNumber`, `beginTime`, `endTime`, `price`) VALUES (?, ?, ?, ?)");
                 preparedStatement.setString(1, number);
                 preparedStatement.setTime(2, new Time(begin.getTime()));
-                result = preparedStatement.execute();
+                preparedStatement.setTime(3, null);
+                preparedStatement.setFloat(4,0);
+                result = !preparedStatement.execute();
             }
         }
         catch (SQLException | ClassNotFoundException e) {
@@ -29,17 +26,25 @@ public class Car_Controller {
         return result;
     }
 
-    public boolean setEndVisit(String number, Date end) {
+    public boolean setEndVisit(String number, Date end, float price) {
         boolean result = false;
         try {
-            if(connection==null){
-                connection=getConnection();
+            if(dao.connection==null){
+                dao.connection=dao.getConnection();
             }
-            if(!dao_car.findById(number).isEmpty()) {
-                PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Visits SET endTime = ? WHERE carNumber = ?");
+            if(!dao.findById(number).isEmpty()) {
+                PreparedStatement ps = dao.connection.prepareStatement("SELECT beginTime FROM Visits WHERE carNumber = ? AND endTime is null");
+                ps.setString(1, number);
+                ResultSet rs = ps.executeQuery();
+                rs.next();
+                if(new Date(rs.getTime(1).getTime()).after(end)){
+                    return false;
+                }
+                PreparedStatement preparedStatement = dao.connection.prepareStatement("UPDATE Visits SET endTime = ?, price = ? WHERE carNumber = ? AND endTime is null");
                 preparedStatement.setTime(1, new Time(end.getTime()));
-                preparedStatement.setString(2,number);
-                result = preparedStatement.execute();
+                preparedStatement.setFloat(2, price);
+                preparedStatement.setString(3,number);
+                result = !preparedStatement.execute();
             }
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();

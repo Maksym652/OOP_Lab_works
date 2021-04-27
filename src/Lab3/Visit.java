@@ -1,15 +1,14 @@
 package Lab3;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-public class TimeInterval implements Serializable {
+public class Visit {
     private Date begin;
     private Date end;
-
+    float price;
     public Date getBegin()
     {
         return begin;
@@ -19,21 +18,35 @@ public class TimeInterval implements Serializable {
         if(end==null) return new Date();
         return end;
     }
-    public void setEnd(Date end) {
+    public void setEnd(Date end, float price) {
         this.end = end;
+        this.price = price;
     }
-    public void setEnd() {
+    public void setEnd(float price) {
         this.end = new Date();
+        this.price = price;
+    }
+    public void setPrice(float price){
+        this.price = price;
+    }
+    public float getPrice(){
+        return this.price;
     }
 
+    public Visit(Date begin, Date end, float price)
+    {
+        this.begin=begin;
+        this.end=end;
+        this.price = price;
+    }
 
-    public TimeInterval(Date begin, Date end)
+    public Visit(Date begin, Date end)
     {
         this.begin=begin;
         this.end=end;
     }
 
-    public boolean includes(TimeInterval interval)
+    public boolean includes(Visit interval)
     {
         return (this.getBegin().before(interval.getBegin()) || this.getBegin().equals(interval.getBegin())) && (this.getEnd().after(interval.getEnd()) || this.getEnd().equals(interval.getEnd()));
     }
@@ -60,7 +73,7 @@ public class TimeInterval implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        TimeInterval that = (TimeInterval) o;
+        Visit that = (Visit) o;
         return begin.equals(that.begin) && Objects.equals(end, that.end);
     }
 
